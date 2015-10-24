@@ -10,8 +10,6 @@ module.exports = function () {
     this.canvas.addEventListener('click', this.canvasClick.bind(this), false);
     this.scale = config.scale;
 
-    console.log('controller initializing');
-
     this.viewModel = new ViewModel();
     this.viewModel.initialize({width: this.canvas.width / this.scale, height: this.canvas.height / this.scale});
 
@@ -30,15 +28,20 @@ module.exports = function () {
   }
 
   this.canvasClick = function (ev) {
-    console.log('canvas click');
     var x = event.pageX - this.canvas.offsetLeft;
     var y = event.pageY - this.canvas.offsetTop;
     this.viewModel.deselectAll();
     var node = this.getNodeByCoordinates(x, y);
     if (node) {
       this.viewModel.selectById(node.id);
+      Object.keys(node.neighbors).forEach(function (nodeId) {
+        node.neighbors[nodeId].selected = true;
+      });
     }
     this.presenter.render();
+    if (node)  {
+      this.presenter.drawEdges(node.edges, {lineWidth: 5, lineColor: 'black'});
+    }
   }
 
   this.getNodeByCoordinates = function (x, y) {

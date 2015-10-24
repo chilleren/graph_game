@@ -11,7 +11,6 @@ var defaults = {
 module.exports = function () {
 
   this.initialize = function (options) {
-    console.log('presenter initializing');
     this.canvas = options.canvas;
     this.ctx = this.canvas.getContext('2d');
     this.scale = options.scale; //px
@@ -19,7 +18,6 @@ module.exports = function () {
   }
 
   this.render = function () {
-    console.log("rendering");
     this.clearCanvas();
     this.drawGrid();
     this.drawEdges(this.viewModel.edges);
@@ -46,10 +44,14 @@ module.exports = function () {
     }
   }
 
-  this.drawEdges = function (edges) {
+  this.drawEdges = function (edges, options) {
+    options = options || {};
+    options.lineWidth = options.lineWidth || 1;
+    options.lineColor = options.lineColor || 'red';
+    _.defaults(options, defaults);
     var that = this;
     edges.forEach(function (nodePair) {
-      that.drawEdge(nodePair, { lineWidth: 1, lineColor: 'red' });
+      that.drawEdge(nodePair, { lineWidth: options.lineWidth, lineColor: options.lineColor });
     });
   }
 
