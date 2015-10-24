@@ -1,7 +1,8 @@
 var _ = require('underscore');
+var config = require('./config');
 
 var defaults = {
-  radius: 5,
+  radius: config.nodeRadius,
   lineColor: 'black',
   fillColor: 'blue',
   lineWidth: 3
@@ -13,17 +14,20 @@ module.exports = function () {
     console.log('presenter initializing');
     this.canvas = options.canvas;
     this.ctx = this.canvas.getContext('2d');
-    this.width = this.canvas.width; //px
-    this.height = this.canvas.height; //px
     this.scale = options.scale; //px
     this.viewModel = options.viewModel;
   }
 
   this.render = function () {
     console.log("rendering");
+    this.clearCanvas();
     this.drawGrid();
-    this.drawNodes(this.viewModel.nodes);
     this.drawEdges(this.viewModel.edges);
+    this.drawNodes(this.viewModel.nodes);
+  }
+
+  this.clearCanvas = function () {
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
   }
 
   this.offset = function (coordinate) {
@@ -32,9 +36,13 @@ module.exports = function () {
 
   this.drawNodes = function (nodes) {
     for (var i = 0; i < nodes.length; i++) {
-      var x = nodes[i].position[0];
-      var y = nodes[i].position[1];
-      this.drawCircle(x, y, {radius: 10});
+      var node = nodes[i]
+      var x = node.position[0];
+      var y = node.position[1];
+      if (node.selected) {
+        this.drawCircle(x, y, {radius: node.radius + 5, fillColor: 'yellow', lineColor: 'orange'});
+      }
+      this.drawCircle(x, y, {radius: node.radius});
     }
   }
 
@@ -50,18 +58,18 @@ module.exports = function () {
     this.ctx.lineWidth = 1;
     console.log('drawing grid');
 
-    for (var x = 0; x < this.width; x += this.scale) {
+    for (var x = 0; x < this.canvas.width; x += this.scale) {
       this.ctx.beginPath();
       this.ctx.moveTo(x, 0);
-      this.ctx.lineTo(x, this.height);
+      this.ctx.lineTo(x, this.canvas.height);
       this.ctx.closePath();
       this.ctx.stroke();
     }
 
-    for (var y = 0; y < this.height; y += this.scale) {
+    for (var y = 0; y < this.canvas.height; y += this.scale) {
       this.ctx.beginPath();
       this.ctx.moveTo(0, y);
-      this.ctx.lineTo(this.width, y);
+      this.ctx.lineTo(this.canvas.width, y);
       this.ctx.closePath();
       this.ctx.stroke();
     }
